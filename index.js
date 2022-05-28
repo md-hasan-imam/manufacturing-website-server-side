@@ -20,6 +20,7 @@ async function run() {
     await client.connect();
     const partsCollection = client.db('automa_care').collection('parts');
     const orderCollection = client.db('automa_care').collection('orders');
+    const reviewCollection = client.db('automa_care').collection('reviews');
 
     // loading parts in home page
     app.get('/parts', async (req, res) => {
@@ -37,6 +38,7 @@ async function run() {
       res.send(parts);
     });
 
+
     // orders
     app.post('/order', async (req, res) => {
       const order = req.body;
@@ -44,6 +46,38 @@ async function run() {
       const result = await orderCollection.insertOne(order);
       return res.send(result);
     });
+
+    
+    // loading my orders
+    app.get('/myorder/:email', async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = { email: email };
+      const orders = await orderCollection.find(query).toArray();
+      res.send(orders);
+    });
+
+
+    app.delete('/myorder/:email', async (req, res) => {
+      const customeremail  = req.params.email;
+      const productId = req.query.productid;
+      console.log( 'id and email', productId,customeremail );
+      const filter = { _id:ObjectId(productId), email:customeremail };
+      const result = await orderCollection.deleteOne(filter);
+      console.log(result)
+      res.send(result);
+    });
+
+    // post review
+    app.post('/reviews', async (req, res) => {
+      const newRatings = req.body;
+      const query = {}
+      const result = await reviewCollection.insertOne(newRatings);
+      return res.send(result);
+    });
+
+
+    
   }
   finally {
 
