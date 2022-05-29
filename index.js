@@ -22,7 +22,7 @@ async function run() {
     const orderCollection = client.db('automa_care').collection('orders');
     const reviewCollection = client.db('automa_care').collection('reviews');
     const userCollection = client.db('automa_care').collection('users');
-    
+
 
     // loading parts in home page
     app.get('/parts', async (req, res) => {
@@ -48,7 +48,7 @@ async function run() {
       return res.send(result);
     });
 
-    
+
     // loading my orders
     app.get('/myorder/:email', async (req, res) => {
       const email = req.params.email;
@@ -59,11 +59,10 @@ async function run() {
     });
 
     // delete order 
-    app.delete('/myorder/:email', async (req, res) => {
-      const customeremail  = req.params.email;
-      const id = req.query.productid;
-      console.log( 'id and email', id,customeremail );
-      const query = { _id: ObjectId(id), email: customeremail };
+    app.delete('/myorder', async (req, res) => {
+      const id = req.query.id;
+      console.log('id and email', id);
+      const query = { _id: ObjectId(id) };
       const result = await orderCollection.deleteOne(query);
       console.log(result)
       res.send(result);
@@ -86,21 +85,21 @@ async function run() {
     });
 
     // update users 
-    app.put('/user/:email',async(req, res)=>{
+    app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
       const updateUser = req.body;
-      console.log(email,updateUser);
-      const filter ={ email:email};
-      const options= {upsert:true};
+      console.log(email, updateUser);
+      const filter = { email: email };
+      const options = { upsert: true };
       const updateDoc = {
         $set: updateUser,
       };
       const result = await userCollection.updateOne(filter, updateDoc, options);
-      res.send({ result});
+      res.send({ result });
     })
 
 
-    
+
   }
   finally {
 
