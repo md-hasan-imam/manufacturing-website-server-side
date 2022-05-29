@@ -21,6 +21,8 @@ async function run() {
     const partsCollection = client.db('automa_care').collection('parts');
     const orderCollection = client.db('automa_care').collection('orders');
     const reviewCollection = client.db('automa_care').collection('reviews');
+    const userCollection = client.db('automa_care').collection('users');
+    
 
     // loading parts in home page
     app.get('/parts', async (req, res) => {
@@ -37,7 +39,6 @@ async function run() {
       const parts = await partsCollection.findOne(query);
       res.send(parts);
     });
-
 
     // orders
     app.post('/order', async (req, res) => {
@@ -57,13 +58,13 @@ async function run() {
       res.send(orders);
     });
 
-
+    // delete order 
     app.delete('/myorder/:email', async (req, res) => {
       const customeremail  = req.params.email;
-      const productId = req.query.productid;
-      console.log( 'id and email', productId,customeremail );
-      const filter = { _id:ObjectId(productId), email:customeremail };
-      const result = await orderCollection.deleteOne(filter);
+      const id = req.query.productid;
+      console.log( 'id and email', id,customeremail );
+      const query = { _id: ObjectId(id), email: customeremail };
+      const result = await orderCollection.deleteOne(query);
       console.log(result)
       res.send(result);
     });
@@ -75,6 +76,28 @@ async function run() {
       const result = await reviewCollection.insertOne(newRatings);
       return res.send(result);
     });
+
+    // loading all reviews in home page
+    app.get('/reviews', async (req, res) => {
+      const query = {};
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    // update users 
+    app.put('/user/:email',async(req, res)=>{
+      const email = req.params.email;
+      const updateUser = req.body;
+      console.log(email,updateUser);
+      const filter ={ email:email};
+      const options= {upsert:true};
+      const updateDoc = {
+        $set: updateUser,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send({ result});
+    })
 
 
     
