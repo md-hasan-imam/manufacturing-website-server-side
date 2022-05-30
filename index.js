@@ -15,23 +15,6 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-function verifyJWT(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).send({ message: 'UnAuthorized access' });
-  }
-  const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ message: 'Forbidden access' })
-    }
-    req.decoded = decoded;
-    next();
-  });
-}
-
-
-
 
 async function run() {
   try {
@@ -87,17 +70,12 @@ async function run() {
 
 
     // loading my orders
-    app.get('/myorder/:email', verifyJWT, async (req, res) => {
+    app.get('/myorder/:email', async (req, res) => {
       const email = req.params.email;
-      const decodedEmail = req.decoded.email;
-      if (email === decodedEmail) {
-        const query = { email: email };
-        const orders = await orderCollection.find(query).toArray();
-        res.send(orders);
-      }
-      else {
-        return res.status(403).send({ message: 'Forbidden Access' })
-      }
+      const query = { email: email };
+      const orders = await orderCollection.find(query).toArray();
+      res.send(orders);
+
     });
 
     // delete order 
@@ -110,12 +88,12 @@ async function run() {
 
     // load single order for payment 
 
-    app.get('/order/:id',async(req,res)=>{
+    app.get('/order/:id', async (req, res) => {
       const orderid = req.params.id;
       const query = { _id: ObjectId(orderid) };
       const result = await orderCollection.findOne(query);
       res.send(result);
-    } )
+    })
 
 
 
