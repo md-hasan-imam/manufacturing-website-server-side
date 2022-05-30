@@ -103,12 +103,21 @@ async function run() {
     // delete order 
     app.delete('/myorder', async (req, res) => {
       const id = req.query.id;
-      console.log('id and email', id);
       const query = { _id: ObjectId(id) };
       const result = await orderCollection.deleteOne(query);
-      console.log(result)
       res.send(result);
     });
+
+    // load single order for payment 
+
+    app.get('/order/:id',async(req,res)=>{
+      const orderid = req.params.id;
+      const query = { _id: ObjectId(orderid) };
+      const result = await orderCollection.findOne(query);
+      res.send(result);
+    } )
+
+
 
     // post review
     app.post('/reviews', async (req, res) => {
@@ -170,7 +179,6 @@ async function run() {
       const email = req.params.email;
       const filter = { email: email };
       const result = await userCollection.deleteOne(filter);
-      console.log(email, filter, result);
       res.send(result);
     })
 
